@@ -1,0 +1,81 @@
+<! doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta author="Eratosthenes">
+    <meta generator="vscode v 1.22.2">
+    <meta date="2018-04-21">
+    <title>Eratosthenes Sieve</title>
+
+    <script>
+        function Eratosthenes() {
+            const n = 1000;
+            var primes = [], l = 1;
+
+            var i = 0, index_square = 3; // proc sift
+
+            var first, last, factor; // proc mark sieve
+
+            for(var k = 0; k < n; k++){ // fill with true
+                primes[k] = true;
+               
+            }
+
+            while(index_square < n){ //proc sift
+
+                if(primes[i]){ //proc mark sieve
+
+                    first = 0 + index_square;
+                    last = 0 + n;
+                    factor = i + i + 3;
+                    primes[first] = false;
+
+                    while(last - first > factor){
+
+                        first = first + factor;
+                        primes[first] = false;
+                    }
+                } // proc mark sieve
+
+                i = i + 1;
+                index_square = 2 * i * (i + 3) + 3;
+
+            } // proc sift
+
+            document.write(' 2');
+
+            for(var i = 0; i < n; i++){
+
+                if(primes[i]){
+
+                    if(2 * i + 3 > n) break;
+                    document.write(' ', 2 * i + 3);
+                    l = l + 1;
+                    if(l % 10 == 0) document.write('<br>');
+                  
+                }
+               
+            } // print out
+
+            document.write('<br><br> number : ' + l);
+        }
+    
+    </script>
+    <style>
+        p{color: blue; font: 14pt verdana}
+    </style>
+
+</head>
+
+<body>
+    <p>
+        First Primes less than 1000, <br>
+        Calculated by Eratosthenes Sieve:
+        <br><br>
+    <script>
+        Eratosthenes();
+    </script>
+    </p>
+</body>
+
+</html>
