@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sieve of Eratosthenes (TS Variant)</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #03dac6;
+            --secondary-color: #03dac6;
+            --text-color: #e0e0e0;
+            --muted-color: #a0a0a0;
+            --code-bg: #2d2d2d;
+            --border-color: #333;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .container {
+            background-color: var(--surface-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid var(--border-color);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        input[type="number"] {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #output {
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            background-color: var(--code-bg);
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            line-height: 1.5;
+        }
+
+        .stats {
+            margin-top: 10px;
+            color: var(--muted-color);
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        /* Syntax Highlighting for the visible code block */
+        .code-view {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+        }
+        details {
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        summary {
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: var(--code-bg);
+        }
+        pre {
+            margin: 0;
+            padding: 15px;
+            overflow-x: auto;
+            color: #d4d4d4;
+            background-color: #1e1e1e;
+        }
+        .kwd { color: #569cd6; } /* Keyword */
+        .type { color: #4ec9b0; } /* Type */
+        .num { color: #b5cea8; } /* Number */
+        .str { color: #ce9178; } /* String */
+        .com { color: #6a9955; } /* Comment */
+    </style>
+</head>
+<body>
+
+    <h1>Sieve of Eratosthenes</h1>
+    
+    <div class="container">
+        <div class="controls">
+            <label for="limit">Upper Bound (N):</label>
+            <input type="number" id="limit" value="1000" min="10">
+            <button onclick="runSieve()">Run Algorithm</button>
+        </div>
+
+        <div id="output">// Results will appear here...</div>
+        <div id="stats" class="stats"></div>
+    </div>
+
+    <div class="code-view">
+        <details>
+            <summary>View TypeScript Source Code</summary>
+<pre>
+<span class="com">// TypeScript Generics Implementation</span>
+<span class="kwd">interface</span> <span class="type">LinearContainer</span>&lt;<span class="type">T</span>&gt; {
+    [<span class="str">index</span>: <span class="type">number</span>]: <span class="type">T</span>;
+    <span class="str">length</span>: <span class="type">number</span>;
+}
+
+<span class="kwd">class</span> <span class="type">OddSieve</span>&lt;<span class="type">T</span> <span class="kwd">extends</span> <span class="type">LinearContainer</span>&lt;<span class="type">boolean</span>&gt;&gt; {
+    <span class="kwd">private</span> data: <span class="type">T</span>;
+
+    <span class="kwd">constructor</span>(container: <span class="type">T</span>) {
+        <span class="kwd">this</span>.data = container;
+    }
+
+    <span class="com">// Equivalent to: void mark_sieve(I first, I last, N factor)</span>
+    <span class="kwd">private</span> <span class="kwd">markSieve</span>(start: <span class="type">number</span>, end: <span class="type">number</span>, factor: <span class="type">number</span>): <span class="kwd">void</span> {
+        <span class="kwd">this</span>.data[start] = <span class="kwd">false</span>;
+        
+        <span class="kwd">let</span> current = start;
+        
+        <span class="com">// last - first > factor</span>
+        <span class="kwd">while</span> ((end - current) > factor) {
+            current = current + factor;
+            <span class="kwd">this</span>.data[current] = <span class="kwd">false</span>;
+        }
+    }
+
+    <span class="com">// Equivalent to: void sift(I first, N n)</span>
+    <span class="kwd">public</span> <span class="kwd">sift</span>(n: <span class="type">number</span>): <span class="kwd">void</span> {
+        <span class="kwd">let</span> i = <span class="num">0</span>;
+        <span class="kwd">let</span> indexSquare = <span class="num">3</span>; <span class="com">// 2*0*(0+3)+3</span>
+
+        <span class="kwd">while</span> (indexSquare < n) {
+            
+            <span class="kwd">if</span> (<span class="kwd">this</span>.data[i]) {
+                <span class="com">// mark_sieve(first + index_square, first + n, i + i + 3)</span>
+                <span class="kwd">this</span>.markSieve(indexSquare, n, i + i + <span class="num">3</span>);
+            }
+
+            ++i;
+            <span class="com">// index_square = 2*i^2 + 6*i + 3</span>
+            indexSquare = <span class="num">2</span> * i * (i + <span class="num">3</span>) + <span class="num">3</span>;
+        }
+    }
+    
+    <span class="kwd">public</span> <span class="kwd">getData</span>(): <span class="type">T</span> {
+        <span class="kwd">return</span> <span class="kwd">this</span>.data;
+    }
+}
+</pre>
+        </details>
+    </div>
+
+    <script>
+        // COMPILED TYPESCRIPT LOGIC
+        // Since browsers run JS, this is the transpiled class logic from the TS above.
+
+        class OddSieve {
+            constructor(container) {
+                this.data = container;
+            }
+
+            markSieve(start, end, factor) {
+                // *first = false
+                this.data[start] = false;
+                
+                let current = start;
+                
+                // while (last - first > factor)
+                while ((end - current) > factor) {
+                    current = current + factor;
+                    // *first = false
+                    this.data[current] = false;
+                }
+            }
+
+            sift(n) {
+                let i = 0;
+                let indexSquare = 3;
+
+                while (indexSquare < n) {
+                    if (this.data[i]) {
+                        // mark_sieve(first + index_square, first + n, i + i + 3);
+                        this.markSieve(indexSquare, n, i + i + 3);
+                    }
+                    
+                    ++i;
+                    // index_square = 2 * i * (i + 3) + 3;  
+                    indexSquare = 2 * i * (i + 3) + 3;
+                }
+            }
+
+            getData() {
+                return this.data;
+            }
+        }
+
+        function runSieve() {
+            const nInput = document.getElementById('limit').value;
+            const n = parseInt(nInput, 10);
+            
+            // Vector<bool> primes(n, true)
+            // In JS/TS arrays are dynamic, but we pre-fill to emulate vector initialization
+            const primesArray = new Array(n).fill(true);
+
+            // Instantiate the generic class
+            const sieveInstance = new OddSieve(primesArray);
+
+            // Measure performance
+            const startTime = performance.now();
+            
+            // Run Algorithm
+            sieveInstance.sift(n);
+            
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(3);
+
+            // Output Processing (Display)
+            let output = "";
+            let count = 1; // Starting with 2
+            
+            // Logic: cout << "2 ";
+            output += "2 ";
+
+            const processedData = sieveInstance.getData();
+
+            for (let i = 0; i < n; ++i) {
+                if (processedData[i]) {
+                    // cout << 2*i + 3 << " ";
+                    output += (2 * i + 3) + " ";
+                    
+                    count++;
+                    
+                    // Newline formatting every 10 numbers
+                    if (count % 10 === 0) {
+                        output += "\n";
+                    }
+                }
+            }
+
+            document.getElementById('output').textContent = output;
+            document.getElementById('stats').textContent = `Found ${count} primes in ${duration}ms`;
+        }
+    </script>
+</body>
+</html>
